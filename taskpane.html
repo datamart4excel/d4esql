@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Full SQL for Excel</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <link href="taskpane.css" rel="stylesheet" type="text/css" />
+  <link rel="icon" type="image/png" href="../assets/D4ELogo-16.png" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      font-family: "Segoe UI", sans-serif;
+      font-size: 13px;
+      color: #333;
+      background-color: white;
+      display: flex;
+      align-items: flex-start; /* Align to top instead of center */
+      justify-content: center;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 10px 20px 20px;
+      max-width: 280px;
+      width: 100%;
+    }
+
+    img#d4e-logo {
+      width: 72px;
+      height: 72px;
+      margin: 0 0 12px 0;
+    }
+
+    h2 {
+      margin: 0 0 6px 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 4px 0;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    a {
+      color: #006747;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      background-color: #107c10;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.2s ease-in-out;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #0b6a0b;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <img id="d4e-logo" src="../assets/D4ELogo.png" alt="D4E Logo" />
+    <h2>Full SQL for Excel</h2>
+    <p>This tool is part of <strong>Data Mart for Excel (D4E)</strong>.</p>
+    <p>Use it to prepare Excel files with SQL formulas and scheduler flows.</p>
+    <p>You can design sheets in Excel for Web or Mac — then run Full SQL in D4E (Desktop).</p>
+    <p>Visit <a href="https://www.datamart4excel.com" target="_blank">www.datamart4excel.com</a> to learn more and continue with the FREE Standard Edition.</p>
+
+    <button id="generate-menuflow">Generate Sample Menuflow</button>
+    <button id="create-sample-d4esql">Create Sample =D4ESQL Formula</button>
+    <button id="create-sample-sqlcode">Create Sample SQL Code</button>
+    <button id="show-help-sheet">Show Help Sheet</button>
+    <button id="create-budget-app">Create Budget Application</button>
+
+
+  </main>
+  <script type="module" src="taskpane.js"></script>
+</body>
+</html>
