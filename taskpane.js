@@ -798,19 +798,19 @@ sheet.getRange("A1:A3").values = [
 
 sheet.getRange("Q1:Q15").values = [
 ["Readme"],
-["This is the Sample FIS Budget Application that will not need external data. It will demonstrate use of SQL inside Excel via =D4ESQL function."],
+["This is the Sample FIS Budget Application that will not need external data. It will demonstrate use of Full SQL inside Excel via =D4ESQL function."],
 ["SHEETS CREATED ARE:"],
 ["1. docs.FIS.DATA - contains sample data and will be read as a table in SQL"],
 ["2. FISSQL - contains SQL code to read Excel sheets specifically docs.FIS.DATA"],
 ["3. menu.FIS.D4ESQL - has =D4ESQL formula to refer to SQL code to report on the table containing Budget data."],
+[""],
 ["TO RUN OR REFRESH:"],
-["Go to ' menu.FIS.D4ESQL' sheet,  position on cell B7 and click on Get Table Data,  Do same for cell I7.  This should refresh the SQL report."],
-["For Advanced Edition, click on 'Run This Macro'  and the reports will be refreshed because of the macro commands in Column A."],
+["From anywhere in workbook, hold SHIFT then click on Get Data Table. This will refresh all cells with =D4ESQL."],
 ["TO SEE IT WORKING:"],
 ["1. Initially, SQL reports in 'menu.FIS.D4ESQL' shows $800 as net amounts."],
 ["2. Click on Get Menu to refresh the menus. Goto SQL Versions > FISSQL > FIS Budget Data Update > this will create an update sheet."],
 ["3. Change amounts in Budget Update sheet, eg $500, then click Update Table.  Internal table (docs.FIS.DATA) will be changed. "],
-["4. Refresh 'menu.FIS.D4ESQL' as above and SQL reports will reflect new amounts."],
+["4. Hold SHIFT then click on Get Data Table and SQL reports will reflect new amounts."],
 [""]
 ];
 
@@ -834,7 +834,7 @@ sheet.getRange("Q1:Q15").values = [
 
         await context.sync();
 
-        const commentText = "To refresh =D4ESQL spill: Click on Get Table Data\n" +
+        const commentText = "To refresh =D4ESQL spill: Click on Get Data Table\n" +
                             "To insert new =D4ESQL: Hold CTRL key > SQL Versions > Choose SQL App option";
 
         for (const f of formulas) {
