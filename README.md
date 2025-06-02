@@ -8,9 +8,9 @@ To set up D4E Server:- in separate instance of Advanced D4E + Office Addin, clic
 Visit www.datamart4excel.com to learn more and continue with the Standard (FREE) or Advanced Edition.
 
 Clickable buttons are:
-Generate Sample Menuflow
-Create Sample =D4ESQL Formula
-Create Sample SQL Code
-Show Help Sheet
-Create Budget Application
+Generate Sample Menuflow,
+Create Sample =D4ESQL Formula,
+Create Sample SQL Code,
+Show Help Sheet,
+Create Budget Application,
 Get Data Table from D4E Server
