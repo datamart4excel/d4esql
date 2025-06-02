@@ -87,13 +87,16 @@
     <p>This tool is part of <strong>Data Mart for Excel (D4E)</strong>.</p>
     <p>Use it to prepare Excel files with SQL formulas and scheduler flows.</p>
     <p>You can design sheets in Excel for Web or Mac — then run Full SQL in D4E (Desktop).</p>
-    <p>Visit <a href="https://www.datamart4excel.com" target="_blank">www.datamart4excel.com</a> to learn more and continue with the FREE Standard Edition.</p>
+    <p>To send SQL requests to D4E Server:- click [Create Budget Application] > go to sheet Menu > position at SQL Version item (e.g., Remote GL Report) > click [Get Data Table from D4E Server].  This will construct a new email ready to send to the back-end server.</p>    
+    <p>To set up D4E Server:- in separate instance of Advanced D4E + Office Addin, click [Generate Sample Menuflow] > fix getinbound user email > click [Start Scheduler] - this will process SQL requests from remote users every 5 mins. D4E Server will send back emails with results.</p>    
+    <p>Visit <a href="https://www.datamart4excel.com" target="_blank">www.datamart4excel.com</a> to learn more and continue with the Standard (FREE) or Advanced Edition.</p>
 
     <button id="generate-menuflow">Generate Sample Menuflow</button>
     <button id="create-sample-d4esql">Create Sample =D4ESQL Formula</button>
     <button id="create-sample-sqlcode">Create Sample SQL Code</button>
     <button id="show-help-sheet">Show Help Sheet</button>
     <button id="create-budget-app">Create Budget Application</button>
+    <button id="send-sql-email">Get Data Table from D4E Server</button>    
 
 
   </main>

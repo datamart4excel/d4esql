@@ -34,9 +34,9 @@ Office.onReady(() => {
         sheet.getRange("A1:E1").format.horizontalAlignment = "Left";
 
         const values = [
-          ["getinbound user@domain.com  finance1", "", "10:00", "Every-5", "get inbound commands from this email"],
-          ["sendoutbound", "", "10:00", "Every-5", "send any emails files out"],
-          ["refreshtaskpane", "", "10:00", "Every-5", "refresh task pane for constant monitoring"]
+          ["getinbound user@domain.com  FISSQL", "", " 10:00", "Every-5", "get inbound commands from this email"],
+          ["sendoutbound", "", " 10:00", "Every-5", "send any emails files out"],
+          ["refreshtaskpane", "", " 10:00", "Every-5", "refresh task pane for constant monitoring"]
         ];
         sheet.getRange("A2:E4").values = values;
         sheet.getRange("A2:E4").format.horizontalAlignment = "Left";
@@ -661,7 +661,7 @@ sheet.getRange("M1:M15").values = [
         const sheets = context.workbook.worksheets;
 
         // Delete if existing
-        const sheetNames = ["docs.FIS.Data", "menu.FIS.D4ESQL", "FISSQL"];
+        const sheetNames = ["docs.FIS.Data", "docs.FIS.ACCOUNTS", "menu.FIS.D4ESQL", "FISSQL", "menu"];
         sheets.load("items/name");
         await context.sync();
 
@@ -787,6 +787,52 @@ sheet.getRange("F1:F15").values = [
         sheet.getRange("A1:Z1").format.font.bold = true;
         sheet.getRange("A1:Z1").format.horizontalAlignment = "Left";    
 
+
+        // Create sheet docs.FIS.ACCOUNTS
+        sheet = sheets.add("docs.FIS.ACCOUNTS");
+        // place holder
+sheet.getRange("A1:A15").values = [
+["Account"],
+["400303"],
+["400101"],
+["500404"],
+["500405"],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""]
+];
+sheet.getRange("B1:B15").values = [
+["Acct_Desc"],
+["Sales"],
+["Investment Income"],
+["Purchases"],
+["Salaries"],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""]
+];        
+//end data placeholder
+
+      sheet.getUsedRange().format.autofitColumns();
+        sheet.getRange("A1:Z1").format.fill.color = "#FCE4D6";
+        sheet.getRange("A1:Z1").format.font.bold = true;
+        sheet.getRange("A1:Z1").format.horizontalAlignment = "Left"; 
+
+
         // Create sheet menu.FIS.D4ESQL
         sheet = sheets.add("menu.FIS.D4ESQL");
         // place holder
@@ -800,17 +846,17 @@ sheet.getRange("Q1:Q15").values = [
 ["Readme"],
 ["This is the Sample FIS Budget Application that will not need external data. It will demonstrate use of Full SQL inside Excel via =D4ESQL function."],
 ["SHEETS CREATED ARE:"],
-["1. docs.FIS.DATA - contains sample data and will be read as a table in SQL"],
-["2. FISSQL - contains SQL code to read Excel sheets specifically docs.FIS.DATA"],
-["3. menu.FIS.D4ESQL - has =D4ESQL formula to refer to SQL code to report on the table containing Budget data."],
-[""],
+["   docs.FIS.DATA                    - contains sample data and will be read as a table in SQL"],
+["   docs.FIS.ACCOUNTS     - contains sample JOIN data and will be read as a table in SQL"],
+["   FISSQL                                      - contains SQL code to read Excel sheets specifically docs.FIS.DATA"],
+["   menu.FIS.D4ESQL           - has =D4ESQL formula to refer to SQL code to report on the table containing Budget data."],
 ["TO RUN OR REFRESH:"],
 ["From anywhere in workbook, hold SHIFT then click on Get Data Table. This will refresh all cells with =D4ESQL."],
 ["TO SEE IT WORKING:"],
-["1. Initially, SQL reports in 'menu.FIS.D4ESQL' shows $800 as net amounts."],
-["2. Click on Get Menu to refresh the menus. Goto SQL Versions > FISSQL > FIS Budget Data Update > this will create an update sheet."],
+["1. Goto 'menu.FIS.D4ESQL',  hold ALT then click on Get Data Table and SQL reports will show $800 as net amounts."],
+["2. Goto ' FISSQL' > position on column C > click Get Data Table > this will create an update sheet."],
 ["3. Change amounts in Budget Update sheet, eg $500, then click Update Table.  Internal table (docs.FIS.DATA) will be changed. "],
-["4. Hold SHIFT then click on Get Data Table and SQL reports will reflect new amounts."],
+["4. Goto 'menu.FIS.D4ESQL',  hold ALT then click on Get Data Table and SQL reports will show changed net amounts."],
 [""]
 ];
 
@@ -835,7 +881,7 @@ sheet.getRange("Q1:Q15").values = [
         await context.sync();
 
         const commentText = "To refresh =D4ESQL spill: Click on Get Data Table\n" +
-                            "To insert new =D4ESQL: Hold CTRL key > SQL Versions > Choose SQL App option";
+                            "To insert new =D4ESQL: Hold SHIFT key > SQL Versions > Choose SQL App option";
 
         for (const f of formulas) {
           const range = sheet.getRange(f.cell);
@@ -893,14 +939,31 @@ sheet.getRange("C1:C15").values = [
 ["$type=Python,"],
 ["$dbms=Ranges,"],
 [""],
-["$tables=docs.FIS.Data!A1:F15,docs.FIS.DATA!A:F=$tables,"],
+["$tables=docs.FIS.DATA!A:F, docs.FIS.Data!A1:F15=$tables,"],
 ["*/"],
 ["SELECT "],
 ["   'U' as Action_Code,"],
 ["Budget_Code as Budget_Code_key,Company,Branch,Account,Curr,Net_Amt"],
-["FROM B"],
+["FROM A"],
 ["where 1=1"],
 ["and Branch = 'Sydney'"],
+[""],
+[""]
+];
+sheet.getRange("D1:D15").values = [
+["/* Remote Server GL Report */"],
+["/* Driver:"],
+["$type=ODBC,"],
+["$conn="],
+["Provider=Microsoft.ACE.OLEDB.12.0;"],
+["Data Source=C:\\temp\\d4e\\FinancialData.accdb;"],
+["Persist Security Info=False;"],
+[" =$conn,"],
+["*/"],
+["SELECT * FROM Budgets"],
+["where 1=1"],
+[""],
+[""],
 [""],
 [""]
 ];
@@ -911,6 +974,101 @@ sheet.getRange("C1:C15").values = [
         sheet.getRange("A1:Z1").format.font.bold = true;
         sheet.getRange("A1:Z1").format.horizontalAlignment = "Left";    
 
+        // Create sheet FIS.SQL
+        sheet = sheets.add("menu");
+        // data place holder
+sheet.getRange("A1:A15").values = [
+["MENU LIST "],
+["SQL"],
+["FISSQL"],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""]
+];
+sheet.getRange("B1:B15").values = [
+["Build Date 1/06/2025 10:04:09 PM"],
+["A (SQL Versions)"],
+["FIS Budget Data 5"],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""]
+];
+sheet.getRange("C1:C15").values = [
+["To run SQL- Go to cell, then click Get Data Table"],
+["B"],
+["FIS Budget Data 4"],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""]
+];
+sheet.getRange("D1:D15").values = [
+["To rebuild this menu- Click Get Menu"],
+["C"],
+["FIS Budget Data Update"],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""]
+];
+sheet.getRange("E1:E15").values = [
+["D:\d4e20\debug Book1.xlsx"],
+["D"],
+["Remote Server GL Report"],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""]
+];
+        // end data placeholder
+
+      sheet.getUsedRange().format.autofitColumns();
+        sheet.getRange("A1:Z1").format.fill.color = "#FCE4D6";
+        sheet.getRange("A1:Z1").format.font.bold = true;
+        sheet.getRange("A1:Z1").format.horizontalAlignment = "Left";  
+
         await context.sync();
         console.log("Budget app sheets created.");
       });
@@ -919,6 +1077,102 @@ sheet.getRange("C1:C15").values = [
 
 
 /* end of button */
+
+/* next button below */
+const sendSqlBtn = document.getElementById("send-sql-email");
+if (sendSqlBtn) {
+  sendSqlBtn.onclick = async () => {
+    await Excel.run(async (context) => {
+      const sheet = context.workbook.worksheets.getActiveWorksheet();
+      sheet.load("name");
+      const range = context.workbook.getSelectedRange();
+      range.load(["rowIndex", "columnIndex", "values"]);
+      await context.sync();
+
+      const sheetName = sheet.name;
+      const rowIndex = range.rowIndex;
+      const colIndex = range.columnIndex;
+      const cellValue = range.values[0][0];
+
+      if (sheetName.toLowerCase() !== "menu") {
+        console.log("Error: Must be on the 'Menu' sheet.");
+        beepTwice();
+        return;
+      }
+
+      if (rowIndex < 2) {
+        console.log("Error: Cursor must not be in row 1 or 2.");
+        beepTwice();
+        return;
+      }
+
+      if (colIndex === 0) {
+        console.log("Error: Cursor must not be in column A.");
+        beepTwice();
+        return;
+      }
+
+      if (!cellValue || cellValue.toString().trim() === "") {
+        console.log("Error: Current cell is blank.");
+        beepTwice();
+        return;
+      }
+
+      const qSheetRange = sheet.getRange(`A${rowIndex + 1}`);
+      qSheetRange.load("values");
+      await context.sync();
+      const qSheet = qSheetRange.values[0][0];
+
+      if (!qSheet || qSheet.toString().trim() === "") {
+        console.log("Error: No SQL sheet name found in column A of this row.");
+        beepTwice();
+        return;
+      }
+
+      const colChar = String.fromCharCode("A".charCodeAt(0) + colIndex - 1);
+const sqlName = cellValue.toString().trim();
+const reportName = `${qSheet}.${colChar}_Report`;
+const fileName = `${qSheet}__${colChar}.csv`;
+
+const body = `rem ${sqlName}\nrunsql ${qSheet} ${colChar}\ncopytofile lastfile.csv\nCreateSendFile current ${reportName}  lastfile.csv`;
+const subject = `$D4E$ ${qSheet}`;
+const recipient = "user@domain.com";
+      const mailtoLink = `mailto:user@domain.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+      window.location.href = mailtoLink;
+    });
+  };
+}
+
+// 🔈 Soft double beep
+function beepTwice() {
+  const context = new (window.AudioContext || window.webkitAudioContext)();
+
+  function playBeep(delay) {
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(500, context.currentTime);
+    gain.gain.setValueAtTime(0.05, context.currentTime); // soft volume
+
+    oscillator.start(context.currentTime + delay);
+    oscillator.stop(context.currentTime + delay + 0.05);
+  }
+
+  playBeep(0);
+  playBeep(0.25);
+}
+
+
+
+
+
+/* end of button */
+
 
 /* next button below */
 
