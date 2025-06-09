@@ -34,7 +34,7 @@ Office.onReady(() => {
         sheet.getRange("A1:E1").format.horizontalAlignment = "Left";
 
         const values = [
-          ["getinbound user@domain.com  FISSQL", "", " 10:00", "Every-5", "get inbound commands from this email"],
+          ["getinbound  defaultemail  FINANCE1", "", " 10:00", "Every-5", "get inbound commands from this email"],
           ["sendoutbound", "", " 10:00", "Every-5", "send any emails files out"],
           ["refreshtaskpane", "", " 10:00", "Every-5", "refresh task pane for constant monitoring"]
         ];
@@ -661,22 +661,72 @@ sheet.getRange("M1:M15").values = [
         const sheets = context.workbook.worksheets;
 
         // Delete if existing
-        const sheetNames = ["docs.FIS.Data", "docs.FIS.ACCOUNTS", "menu.FIS.D4ESQL", "FISSQL", "menu"];
-        sheets.load("items/name");
-        await context.sync();
+        const sheetNames = ["docs.FIS.Data", "docs.FIS.ACCOUNTS", "menu.FIS.D4ESQL", "FISSQL", "menu", "menuflow"];
 
-        for (const name of sheetNames) {
-          for (let i = 0; i < sheets.items.length; i++) {
-            if (sheets.items[i].name.toLowerCase() === name.toLowerCase()) {
-              sheets.items[i].delete();
-              await context.sync();
-              break;
-            }
-          }
-        }
+// 1. Add a temporary sheet to ensure workbook is never empty
+const tempSheet = sheets.add("temp_d4e_safe");
+await context.sync();
+
+// 2. Proceed to delete known target sheets
+for (const name of sheetNames) {
+  sheets.load("items/name");
+  await context.sync();
+
+  for (let i = 0; i < sheets.items.length; i++) {
+    if (sheets.items[i].name.toLowerCase() === name.toLowerCase()) {
+      sheets.items[i].delete();
+      await context.sync();
+      break;
+    }
+  }
+}
+
+
+
 
         // Create sheet docs.FIS.Data
         let sheet = sheets.add("docs.FIS.Data");
+        await context.sync();
+
+// Delete temp sheet directly
+sheets.getItem("temp_d4e_safe").delete();
+await context.sync();
+
+     // 🔻 INSERTED: Menuflow creation logic
+      const sheetName = "menuflow";
+      sheets.load("items/name");
+      await context.sync();
+
+      for (let i = 0; i < sheets.items.length; i++) {
+        if (sheets.items[i].name.toLowerCase() === sheetName) {
+          sheets.items[i].delete();
+          await context.sync();
+          break;
+        }
+      }
+
+      const menuflowSheet = sheets.add(sheetName);
+
+      const headers = [
+        "Task Command", "Version", "Start Time", "Repetition", "Comment"
+      ];
+      menuflowSheet.getRange("A1:E1").values = [headers];
+      menuflowSheet.getRange("A1:E1").format.fill.color = "#FCE4D6";
+      menuflowSheet.getRange("A1:E1").format.font.bold = true;
+      menuflowSheet.getRange("A1:E1").format.horizontalAlignment = "Left";
+
+      const values = [
+        ["getinbound  defaultemail  FINANCE1", "", " 10:00", "Every-5", "get inbound commands from this email"],
+        ["sendoutbound", "", " 10:00", "Every-5", "send any emails files out"],
+        ["refreshtaskpane", "", " 10:00", "Every-5", "refresh task pane for constant monitoring"]
+      ];
+      menuflowSheet.getRange("A2:E4").values = values;
+      menuflowSheet.getRange("A2:E4").format.horizontalAlignment = "Left";
+
+      menuflowSheet.getUsedRange().format.autofitColumns();
+      menuflowSheet.activate();
+      await context.sync();
+
 // start data placeholder        
 sheet.getRange("A1:A15").values = [
 ["Budget_Code"],
@@ -790,6 +840,7 @@ sheet.getRange("F1:F15").values = [
 
         // Create sheet docs.FIS.ACCOUNTS
         sheet = sheets.add("docs.FIS.ACCOUNTS");
+        await context.sync();
         // place holder
 sheet.getRange("A1:A15").values = [
 ["Account"],
@@ -835,6 +886,7 @@ sheet.getRange("B1:B15").values = [
 
         // Create sheet menu.FIS.D4ESQL
         sheet = sheets.add("menu.FIS.D4ESQL");
+        await context.sync();
         // place holder
 sheet.getRange("A1:A3").values = [
 ["Rem Refresh Macro"],
@@ -896,8 +948,9 @@ sheet.getRange("Q1:Q15").values = [
         sheet.getRange("A1:Z1").format.horizontalAlignment = "Left";    
 
 
-        // Create sheet FIS.SQL
+        // Create sheet FISSQL
         sheet = sheets.add("FISSQL");
+        await context.sync();
         // data place holder
 sheet.getRange("A1:A15").values = [
 ["/* FIS Budget Data 5 */"],
@@ -974,8 +1027,9 @@ sheet.getRange("D1:D15").values = [
         sheet.getRange("A1:Z1").format.font.bold = true;
         sheet.getRange("A1:Z1").format.horizontalAlignment = "Left";    
 
-        // Create sheet FIS.SQL
+        // Create sheet menu
         sheet = sheets.add("menu");
+        await context.sync();
         // data place holder
 sheet.getRange("A1:A15").values = [
 ["MENU LIST "],
@@ -1012,7 +1066,7 @@ sheet.getRange("B1:B15").values = [
 [""]
 ];
 sheet.getRange("C1:C15").values = [
-["To run SQL- Go to cell, then click Get Data Table"],
+["defaultemail"],
 ["B"],
 ["FIS Budget Data 4"],
 [""],
@@ -1029,7 +1083,7 @@ sheet.getRange("C1:C15").values = [
 [""]
 ];
 sheet.getRange("D1:D15").values = [
-["To rebuild this menu- Click Get Menu"],
+["FINANCE1"],
 ["C"],
 ["FIS Budget Data Update"],
 [""],
@@ -1046,7 +1100,7 @@ sheet.getRange("D1:D15").values = [
 [""]
 ];
 sheet.getRange("E1:E15").values = [
-["D:\d4e20\debug Book1.xlsx"],
+["(change C1 to your server email or click Get Menu to get default)"],
 ["D"],
 ["Remote Server GL Report"],
 [""],
@@ -1076,73 +1130,121 @@ sheet.getRange("E1:E15").values = [
   }
 
 
+  
+
 /* end of button */
 
 /* next button below */
+
 const sendSqlBtn = document.getElementById("send-sql-email");
-if (sendSqlBtn) {
-  sendSqlBtn.onclick = async () => {
-    await Excel.run(async (context) => {
-      const sheet = context.workbook.worksheets.getActiveWorksheet();
-      sheet.load("name");
-      const range = context.workbook.getSelectedRange();
-      range.load(["rowIndex", "columnIndex", "values"]);
-      await context.sync();
+  if (sendSqlBtn) {
+    sendSqlBtn.onclick = async () => {
+      await Excel.run(async (context) => {
+        const sheet = context.workbook.worksheets.getActiveWorksheet();
+        sheet.load("name");
+        const range = context.workbook.getSelectedRange();
+        range.load(["rowIndex", "columnIndex", "values"]);
 
-      const sheetName = sheet.name;
-      const rowIndex = range.rowIndex;
-      const colIndex = range.columnIndex;
-      const cellValue = range.values[0][0];
+        await context.sync();
 
-      if (sheetName.toLowerCase() !== "menu") {
-        console.log("Error: Must be on the 'Menu' sheet.");
-        beepTwice();
-        return;
-      }
+        const sheetName = sheet.name;
+        const rowIndex = range.rowIndex;
+        const colIndex = range.columnIndex;
+        const cellValue = range.values[0][0];
 
-      if (rowIndex < 2) {
-        console.log("Error: Cursor must not be in row 1 or 2.");
-        beepTwice();
-        return;
-      }
+        let recipient = "server@domain.com";
+        let subject = "$D4E$";
 
-      if (colIndex === 0) {
-        console.log("Error: Cursor must not be in column A.");
-        beepTwice();
-        return;
-      }
+        // Try to find recipient and subject from Menu sheet (C1 and D1)
+        const menuSheet = context.workbook.worksheets.getItem("Menu");
+        const c1 = menuSheet.getRange("C1");
+        const d1 = menuSheet.getRange("D1");
+        c1.load("values");
+        d1.load("values");
+        await context.sync();
 
-      if (!cellValue || cellValue.toString().trim() === "") {
-        console.log("Error: Current cell is blank.");
-        beepTwice();
-        return;
-      }
+        const c1Value = c1.values[0][0];
+        const d1Value = d1.values[0][0];
 
-      const qSheetRange = sheet.getRange(`A${rowIndex + 1}`);
-      qSheetRange.load("values");
-      await context.sync();
-      const qSheet = qSheetRange.values[0][0];
+        const isEmail = (val) =>
+          typeof val === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
 
-      if (!qSheet || qSheet.toString().trim() === "") {
-        console.log("Error: No SQL sheet name found in column A of this row.");
-        beepTwice();
-        return;
-      }
+        if (isEmail(c1Value)) recipient = c1Value.trim();
+        if (d1Value && typeof d1Value === "string") subject = `$D4E$ ${d1Value}`;
 
-      const colChar = String.fromCharCode("A".charCodeAt(0) + colIndex - 1);
-const sqlName = cellValue.toString().trim();
-const reportName = `${qSheet}.${colChar}_Report`;
-const fileName = `${qSheet}__${colChar}.csv`;
+        let body = "";
 
-const body = `rem ${sqlName}\nrunsql ${qSheet} ${colChar}\ncopytofile lastfile.csv\nCreateSendFile current ${reportName}  lastfile.csv`;
-const subject = `$D4E$ ${qSheet}`;
-const recipient = "user@domain.com";
-      const mailtoLink = `mailto:user@domain.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        // Determine if we're in a SQL code column (row 1 starts with /*)
+        const row1Range = sheet.getRangeByIndexes(0, colIndex, 1, 1);
+        row1Range.load("values");
+        await context.sync();
+        const row1Value = row1Range.values[0][0];
 
-      window.location.href = mailtoLink;
-    });
-  };
-}
+        const isSqlCode = row1Value && row1Value.toString().trim().startsWith("/*");
+
+        if (isSqlCode) {
+          const colRange = sheet.getRangeByIndexes(0, colIndex, 30, 1); // scan up to 30 rows
+          colRange.load("values");
+          await context.sync();
+
+          const lines = colRange.values.map(row => row[0]).filter(v => v && v.toString().trim() !== "");
+
+          body = "remotesql " + lines[0] + "\n";
+          for (let i = 1; i < lines.length; i++) {
+            body += lines[i] + "\n";
+          }
+          body += "endremotesql";
+        } else {
+          if (sheetName.toLowerCase() !== "menu") {
+            console.log("Error: Must be on the 'Menu' sheet.");
+            beepTwice();
+            return;
+          }
+
+          if (rowIndex < 2) {
+            console.log("Error: Cursor must not be in row 1 or 2.");
+            beepTwice();
+            return;
+          }
+
+          if (colIndex === 0) {
+            console.log("Error: Cursor must not be in column A.");
+            beepTwice();
+            return;
+          }
+
+          if (!cellValue || cellValue.toString().trim() === "") {
+            console.log("Error: Current cell is blank.");
+            beepTwice();
+            return;
+          }
+
+          const qSheetRange = sheet.getRange(`A${rowIndex + 1}`);
+          qSheetRange.load("values");
+          await context.sync();
+          const qSheet = qSheetRange.values[0][0];
+
+          if (!qSheet || qSheet.toString().trim() === "") {
+            console.log("Error: No SQL sheet name found in column A of this row.");
+            beepTwice();
+            return;
+          }
+
+          const colChar = String.fromCharCode("A".charCodeAt(0) + colIndex - 1);
+          const sqlName = cellValue.toString().trim();
+          const reportName = `${qSheet}.${colChar}_Report`;
+          const fileName = `${qSheet}__${colChar}.csv`;
+
+          body = `rem ${sqlName}\nrunsql ${qSheet} ${colChar}\ncopytofile lastfile.csv\nCreateSendFile current ${reportName} lastfile.csv`;
+        }
+
+        const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailtoLink;
+      });
+    };
+  }
+
+
 
 // 🔈 Soft double beep
 function beepTwice() {
@@ -1166,11 +1268,6 @@ function beepTwice() {
   playBeep(0);
   playBeep(0.25);
 }
-
-
-
-
-
 /* end of button */
 
 
