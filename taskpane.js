@@ -1118,6 +1118,46 @@ sheet.getRange("E1:E15").values = [
 ];
         // end data placeholder
 
+        // Create sheet Macro1
+        sheet = sheets.add("Macro2");
+        await context.sync();
+        // data place holder
+sheet.getRange("A1:A15").values = [
+["rem macro test1"],
+["runsql FISSQL D"],
+["copytofile lastfile.csv"],
+["CreateSendFile current FISSQL.D_Report lastfile.csv "],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""]
+];
+sheet.getRange("B1:B15").values = [
+["rem macro test2"],
+["runsql FISSQL D"],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""],
+[""]
+];
+        // end data placeholder
+
       sheet.getUsedRange().format.autofitColumns();
         sheet.getRange("A1:Z1").format.fill.color = "#FCE4D6";
         sheet.getRange("A1:Z1").format.font.bold = true;
@@ -1137,112 +1177,134 @@ sheet.getRange("E1:E15").values = [
 /* next button below */
 
 const sendSqlBtn = document.getElementById("send-sql-email");
-  if (sendSqlBtn) {
-    sendSqlBtn.onclick = async () => {
-      await Excel.run(async (context) => {
-        const sheet = context.workbook.worksheets.getActiveWorksheet();
-        sheet.load("name");
-        const range = context.workbook.getSelectedRange();
-        range.load(["rowIndex", "columnIndex", "values"]);
+if (sendSqlBtn) {
+  sendSqlBtn.onclick = async () => {
+    await Excel.run(async (context) => {
+      const sheet = context.workbook.worksheets.getActiveWorksheet();
+      sheet.load("name");
+      const range = context.workbook.getSelectedRange();
+      range.load(["rowIndex", "columnIndex", "values"]);
 
+      await context.sync();
+
+      const sheetName = sheet.name;
+      const rowIndex = range.rowIndex;
+      const colIndex = range.columnIndex;
+      const cellValue = range.values[0][0];
+
+      let recipient = "server@domain.com";
+      let subject = "$D4E$";
+
+      // Try to get recipient and subject from Menu!C1 and Menu!D1
+      const menuSheet = context.workbook.worksheets.getItem("Menu");
+      const c1 = menuSheet.getRange("C1");
+      const d1 = menuSheet.getRange("D1");
+      c1.load("values");
+      d1.load("values");
+      await context.sync();
+
+      const c1Value = c1.values[0][0];
+      const d1Value = d1.values[0][0];
+
+      const isEmail = (val) =>
+        typeof val === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+
+      if (isEmail(c1Value)) recipient = c1Value.trim();
+      if (d1Value && typeof d1Value === "string") subject = `$D4E$ ${d1Value}`;
+
+      let body = "";
+
+      const row1Range = sheet.getRangeByIndexes(0, colIndex, 1, 1);
+      row1Range.load("values");
+      await context.sync();
+      const row1Value = row1Range.values[0][0];
+
+      const isSqlCode = row1Value && row1Value.toString().trim().startsWith("/*");
+      const isMacroSheet = /^macro/i.test(sheetName);
+
+      if (isMacroSheet) {
+        const usedRange = sheet.getUsedRange();
+        usedRange.load("rowCount");
+        await context.sync();
+        const lastRow = usedRange.rowCount;
+
+        const colRange = sheet.getRangeByIndexes(0, colIndex, lastRow, 1);
+        colRange.load("values");
         await context.sync();
 
-        const sheetName = sheet.name;
-        const rowIndex = range.rowIndex;
-        const colIndex = range.columnIndex;
-        const cellValue = range.values[0][0];
+        const values = colRange.values.map(row => row[0]).filter(v => v && v.toString().trim() !== "");
 
-        let recipient = "server@domain.com";
-        let subject = "$D4E$";
-
-        // Try to find recipient and subject from Menu sheet (C1 and D1)
-        const menuSheet = context.workbook.worksheets.getItem("Menu");
-        const c1 = menuSheet.getRange("C1");
-        const d1 = menuSheet.getRange("D1");
-        c1.load("values");
-        d1.load("values");
-        await context.sync();
-
-        const c1Value = c1.values[0][0];
-        const d1Value = d1.values[0][0];
-
-        const isEmail = (val) =>
-          typeof val === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
-
-        if (isEmail(c1Value)) recipient = c1Value.trim();
-        if (d1Value && typeof d1Value === "string") subject = `$D4E$ ${d1Value}`;
-
-        let body = "";
-
-        // Determine if we're in a SQL code column (row 1 starts with /*)
-        const row1Range = sheet.getRangeByIndexes(0, colIndex, 1, 1);
-        row1Range.load("values");
-        await context.sync();
-        const row1Value = row1Range.values[0][0];
-
-        const isSqlCode = row1Value && row1Value.toString().trim().startsWith("/*");
-
-        if (isSqlCode) {
-          const colRange = sheet.getRangeByIndexes(0, colIndex, 30, 1); // scan up to 30 rows
-          colRange.load("values");
-          await context.sync();
-
-          const lines = colRange.values.map(row => row[0]).filter(v => v && v.toString().trim() !== "");
-
-          body = "remotesql " + lines[0] + "\n";
-          for (let i = 1; i < lines.length; i++) {
-            body += lines[i] + "\n";
-          }
-          body += "endremotesql";
-        } else {
-          if (sheetName.toLowerCase() !== "menu") {
-            console.log("Error: Must be on the 'Menu' sheet.");
-            beepTwice();
-            return;
-          }
-
-          if (rowIndex < 2) {
-            console.log("Error: Cursor must not be in row 1 or 2.");
-            beepTwice();
-            return;
-          }
-
-          if (colIndex === 0) {
-            console.log("Error: Cursor must not be in column A.");
-            beepTwice();
-            return;
-          }
-
-          if (!cellValue || cellValue.toString().trim() === "") {
-            console.log("Error: Current cell is blank.");
-            beepTwice();
-            return;
-          }
-
-          const qSheetRange = sheet.getRange(`A${rowIndex + 1}`);
-          qSheetRange.load("values");
-          await context.sync();
-          const qSheet = qSheetRange.values[0][0];
-
-          if (!qSheet || qSheet.toString().trim() === "") {
-            console.log("Error: No SQL sheet name found in column A of this row.");
-            beepTwice();
-            return;
-          }
-
-          const colChar = String.fromCharCode("A".charCodeAt(0) + colIndex - 1);
-          const sqlName = cellValue.toString().trim();
-          const reportName = `${qSheet}.${colChar}_Report`;
-          const fileName = `${qSheet}__${colChar}.csv`;
-
-          body = `rem ${sqlName}\nrunsql ${qSheet} ${colChar}\ncopytofile lastfile.csv\nCreateSendFile current ${reportName} lastfile.csv`;
+        if (values.length === 0) {
+          console.log("Error: Column is empty.");
+          beepTwice();
+          return;
         }
 
-        const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        window.location.href = mailtoLink;
-      });
-    };
-  }
+        body = values.join("\n");
+      }
+      else if (isSqlCode) {
+        const colRange = sheet.getRangeByIndexes(0, colIndex, 30, 1); // scan up to 30 rows
+        colRange.load("values");
+        await context.sync();
+
+        const lines = colRange.values.map(row => row[0]).filter(v => v && v.toString().trim() !== "");
+
+        body = "remotesql " + lines[0] + "\n";
+        for (let i = 1; i < lines.length; i++) {
+          body += lines[i] + "\n";
+        }
+        body += "endremotesql";
+      }
+      else {
+        if (sheetName.toLowerCase() !== "menu") {
+          console.log("Error: Must be on the 'Menu' sheet.");
+          beepTwice();
+          return;
+        }
+
+        if (rowIndex < 2) {
+          console.log("Error: Cursor must not be in row 1 or 2.");
+          beepTwice();
+          return;
+        }
+
+        if (colIndex === 0) {
+          console.log("Error: Cursor must not be in column A.");
+          beepTwice();
+          return;
+        }
+
+        if (!cellValue || cellValue.toString().trim() === "") {
+          console.log("Error: Current cell is blank.");
+          beepTwice();
+          return;
+        }
+
+        const qSheetRange = sheet.getRange(`A${rowIndex + 1}`);
+        qSheetRange.load("values");
+        await context.sync();
+        const qSheet = qSheetRange.values[0][0];
+
+        if (!qSheet || qSheet.toString().trim() === "") {
+          console.log("Error: No SQL sheet name found in column A of this row.");
+          beepTwice();
+          return;
+        }
+
+        const colChar = String.fromCharCode("A".charCodeAt(0) + colIndex - 1);
+        const sqlName = cellValue.toString().trim();
+        const reportName = `${qSheet}.${colChar}_Report`;
+
+        body = `rem ${sqlName}\nrunsql ${qSheet} ${colChar}\ncopytofile lastfile.csv\nCreateSendFile current ${reportName} lastfile.csv`;
+      }
+
+      const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailtoLink;
+    });
+  };
+}
+
+
 
 
 
